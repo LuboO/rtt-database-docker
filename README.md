@@ -1,5 +1,5 @@
 # Randomness Testing Toolkit
-For more information about the project, author and license please see project repository.  
+For more information about the project, authors and license please see project repository.  
 https://github.com/crocs-muni/randomness-testing-toolkit
 
 # rtt-database-docker
