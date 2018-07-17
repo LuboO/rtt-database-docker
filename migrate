@@ -1,0 +1,37 @@
+#! /bin/bash
+set -e
+
+if ! [ -n "$1" ]; then
+    echo "You must specify root database password on command line!"
+    exit 1
+else
+    PASSWORD=$1
+fi
+
+TEMP_PWD_FILE=tmp.cnf
+touch $TEMP_PWD_FILE
+chmod 600 $TEMP_PWD_FILE
+printf "[client]\npassword=%s\n" $PASSWORD > $TEMP_PWD_FILE
+
+MIGRATIONS_TABLE=rtt_migration_info.applied_migrations
+# ||true - not terminating the script on non-zero return code. Table doesn't have to exist yet.
+last_migration_number=$(mysql --defaults-file=$TEMP_PWD_FILE -N -B -e "SELECT number FROM $MIGRATIONS_TABLE ORDER BY id DESC LIMIT 1") || true
+
+# In case database wasn't even created (usually when deploying the container on clean machine)
+if ! [ -n "$last_migration_number" ]; then
+    last_migration_number="-1"
+fi
+
+while IFS= read -r migration_file; do
+    # Get migration number from its filename
+    split=(${migration_file//_/ })
+    migration_number=${split[0]}
+    if [ "$migration_number" -gt "$last_migration_number" ]; then
+        printf "Migrating database: %s\n" "$migration_file"
+        mysql --defaults-file=$TEMP_PWD_FILE -uroot < "/migrations/$migration_file"
+        mysql --defaults-file=$TEMP_PWD_FILE -uroot --execute="INSERT INTO $MIGRATIONS_TABLE (number, filename) VALUES (\"$migration_number\", \"$migration_file\")"
+    fi
+done < "/migration_order.txt"
+
+rm $TEMP_PWD_FILE
+
