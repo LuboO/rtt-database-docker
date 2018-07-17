@@ -1,1 +1,2 @@
 0_create_migration_info_database.sql
+1_create_rtt_tables.sql
