@@ -1,18 +1,17 @@
 #! /bin/bash
 set -e
 
-if [[ $# -ne 2 ]]; then
-    echo "[USAGE] run_sql <db-root-password> <sql-query>"
+if [[ $# -ne 1 ]]; then
+    echo "[USAGE] run_sql <sql-query>"
     exit 1
 else
-    PASSWORD=$1
-    SQL_QUERY=$2
+    SQL_QUERY=$1
 fi
 
 TEMP_PWD_FILE=tmp.cnf
 touch $TEMP_PWD_FILE
 chmod 600 $TEMP_PWD_FILE
-printf "[client]\npassword=%s\n" $PASSWORD > $TEMP_PWD_FILE
+printf "[client]\npassword=%s\n" $MYSQL_ROOT_PASSWORD > $TEMP_PWD_FILE
 
 mysql --defaults-file=$TEMP_PWD_FILE -uroot --execute="$SQL_QUERY"
 
