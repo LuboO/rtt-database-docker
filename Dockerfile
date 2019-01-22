@@ -9,6 +9,8 @@ COPY disable_remote_root_login.sql /docker-entrypoint-initdb.d/
 COPY migrate /usr/local/bin/
 COPY run_sql /usr/local/bin/
 
+RUN chmod 770 /usr/local/bin/migrate /usr/local/bin/run_sql
+
 COPY migration_order.txt /migration_order.txt
 COPY migrations /migrations/
 
