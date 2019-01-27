@@ -14,3 +14,5 @@ RUN chmod 770 /usr/local/bin/migrate /usr/local/bin/run_sql
 COPY migration_order.txt /migration_order.txt
 COPY migrations /migrations/
 
+ENV RTT_DATABASE_DB_DATA_DIR=/var/lib/mysql
+
